@@ -1,4 +1,4 @@
-import os, sys
+import glob, os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pytest
 from boundgym import (Hazard, Level, generate, naive_moves, parse_moves, render_prompt,
@@ -109,3 +109,63 @@ def test_viz_trace_matches_verifier(tmp_path):
     assert len(frames) == l.optimal_moves + 2      # one per t, plus held final banner
     save_gif(frames, str(tmp_path / "x.gif"))
     assert (tmp_path / "x.gif").stat().st_size > 0
+
+
+def _brute_optimal(l):
+    """Independent of solve(): BFS over the full time-expanded graph (cell, t), no t % cycle dedup."""
+    from collections import deque
+    from boundgym.level import MOVES
+    seen, q = {(l.start, 0)}, deque([(l.start, 0)])
+    while q:
+        pos, t = q.popleft()
+        if t >= l.max_moves:
+            continue
+        for dr, dc in MOVES.values():
+            n = (pos[0] + dr, pos[1] + dc)
+            if not l.passable(n) or l.hazard_active(n, t + 1):
+                continue
+            if n == l.goal:
+                return t + 1
+            if (n, t + 1) not in seen:
+                seen.add((n, t + 1))
+                q.append((n, t + 1))
+    return None
+
+
+def _some_static_shortest_path_survives(l):
+    """True if ANY hazard-free shortest path (not just naive_moves' tie-break) survives the hazards."""
+    from boundgym.level import MOVES
+    from boundgym.solve import static_distances
+    dist = static_distances(l)
+    frontier = {l.start}
+    for t in range(1, dist[l.start] + 1):
+        frontier = {n for p in frontier for dr, dc in (MOVES[m] for m in "RDLU")
+                    for n in [(p[0] + dr, p[1] + dc)]
+                    if dist.get(n) == dist[p] - 1 and not l.hazard_active(n, t)}
+    return l.goal in frontier
+
+
+FROZEN = sorted(glob.glob(os.path.join(os.path.dirname(__file__), "..", "levels*", "d*.jsonl")))
+
+
+@pytest.mark.parametrize("path", FROZEN, ids=lambda p: os.path.relpath(p, os.path.join(os.path.dirname(p), "..")))
+def test_frozen_sets_optimal_and_reproducible(path):
+    """Every frozen eval level: solvable, optimal_moves confirmed by an independent search,
+    identical to the generator's output, and from d3 no hazard-free shortest path survives."""
+    with open(path) as f:
+        levels = [Level.from_json(line) for line in f]
+    assert levels
+    for l in levels:
+        assert _brute_optimal(l) == l.optimal_moves == len(solve(l))
+        assert generate(l.difficulty, l.seed).to_json() == l.to_json()
+        if l.difficulty >= 3:
+            assert not _some_static_shortest_path_survives(l)
+
+
+def test_verifier_format_rules():
+    """Documented leniencies: they relax format, never correctness."""
+    l = tiny()
+    assert reward(l, "<moves>r w r r r</moves>") == 1.0             # case-insensitive
+    assert simulate(l, list("RWRRR") + list("UUUU")).success         # moves after reaching G are ignored
+    assert reward(l, "<think><moves>RWRRR</moves></think> unsure") == 1.0  # last block counts, wherever it is
+    assert reward(l, "<moves>RWRRR</moves> then <moves>RRRR</moves>") == 0.0  # ...and only the last

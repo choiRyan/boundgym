@@ -21,6 +21,12 @@ Every change made to the code as delivered in the chapter 1 kit, and why.
   (other services on the machine, home-directory paths) removed from `notes/issues.md`, `notes/lessons.md` and
   `docs/dashboard.md`. README: name origin, 1- vs 4-attempt baseline note, "How this was built" section, ops tips
   moved out. Git history restarted as one commit so the removed details don't survive in GitHub history.
+- **Verifiability audit (2026-11-14):** tests added: an independent time-expanded BFS (no `t % cycle` shortcut)
+  confirms solvability and `optimal_moves` for every frozen level; frozen sets equal the generator's output; from d3
+  no hazard-free shortest path survives; the verifier's format rules (last block, case, moves after `G`) are pinned.
+  Found: on d2, 56/100 frozen levels have *some* static shortest path that survives (only the tie-broken naive path
+  is guaranteed to die). README wording corrected; d2 is training-only, so the eval sets are unaffected.
+  No train/eval duplicates at d3 (training seeds 0–1999 vs both eval sets, compared on layout alone). No code changes.
 - `scripts/serve.sh` (new): safe server swap (kills `vllm serve`, waits for port, checks served model id).
 - `scripts/rescore.py` (new): re-scores saved `results/*.jsonl` with the current verifier, in place. Changed rows
   keep `reason_before_rescore`.

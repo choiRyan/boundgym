@@ -14,8 +14,8 @@ Shown: Two plans running on the same level. Running straight (left): game over o
 ## What boundgym is
 
 - Player walks from `S` to `G` on a grid. Hazard cells (letters) are active on a fixed cycle (`t % period`). Standing on an active hazard ends the run. Moves: U/D/L/R/W (up/down/left/right/wait)
-- **Every level is solvable, plus the best answer is known.** The generator keeps only levels the exact solver proves to be solvable. On difficulties d2 and above, the naive "run-straight" path must fail. From d3, the optimal route must be longer than the hazard-free shortest path, so the player has to wait or detour.
-- **Verifier = Reward.** It replays the moves and returns 1 only if the player reaches `G` alive within the move limit. There's no partial credit so we knock out a lot of reward hacks.
+- **Every level is solvable, plus the best answer is known.** The generator keeps only levels the exact solver proves to be solvable. On d2, the naive "run-straight" path (one hazard-free shortest path, fixed tie-break) must fail; other equally short paths may still survive. From d3, *every* hazard-free shortest path fails: the optimal route is longer, so the player has to wait or detour. An independent search over every (cell, time) state confirms solvability and the optimal length for all 900 frozen eval levels (`tests/test_core.py`).
+- **Verifier = Reward.** It replays the moves and returns 1 only if the player reaches `G` alive within the move limit. There's no partial credit so we knock out a lot of reward hacks. Format rules: the last `<moves>` block in the output counts (case-insensitive, separators allowed), and moves after reaching `G` are ignored. These relax format only; a reward of 1 always needs a sequence that really reaches the goal.
 - One difficulty knob (d1 to d8: grid size, hazard count, cycle lengths). Frozen held-out sets use seeds ≥ 1,000,000; training uses seeds from 0.
 - The model sees the map and schedules as text, then answers with `<moves>…</moves>`.
 
