@@ -1,0 +1,16 @@
+[project]
+name = "boundgym"
+version = "0.1.0"
+description = "Procedurally generated timed obstacle courses for LLM RL, evals and tiny-policy RL"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = []
+
+[project.optional-dependencies]
+gym = ["gymnasium>=1.0", "numpy"]
+viz = ["pillow"]
+dev = ["pytest", "gymnasium>=1.0", "numpy", "pillow"]
+
+[tool.setuptools]
+packages = ["boundgym"]

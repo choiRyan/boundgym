@@ -1,0 +1,28 @@
+# Environments and caches
+.venv/
+.vllm-venv/
+*.egg-info/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Dashboard runtime (scripts/dashboard.py)
+.dashboard.pid
+.dashboard.log
+
+# Training artifacts: model weights and raw samples are large and reproducible from the code + args.json.
+# Kept per run: args.json, metrics.jsonl, profile.jsonl, resumes.jsonl, log_history.json, README.md.
+chapter3/runs/*/checkpoint-*/
+chapter3/runs/*/final/
+chapter3/runs/*/completions/
+
+# Raw logs (training curves are in runs/<run>/metrics.jsonl; g1–g3 were backfilled from these logs)
+*.log
+chapter3/vllm_eval.pid
+
+# Snapshots written by `dashboard.py --once`
+snapshot*.html
+
+# Raw nvidia-smi memory samples and resume timestamps (peaks are recorded in notes/results.md; resumes in runs/<run>/resumes.jsonl)
+chapter3/*_gpu.txt
+chapter3/*.resume.txt

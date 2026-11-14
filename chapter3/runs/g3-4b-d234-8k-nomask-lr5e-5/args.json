@@ -1,0 +1,19 @@
+{
+  "run": "g3-4b-d234-8k-nomask-lr5e-5",
+  "model": "Qwen/Qwen3-4B",
+  "difficulties": "2,3,4",
+  "n_per": 2000,
+  "max_steps": 100,
+  "max_completion": 8192,
+  "num_generations": 8,
+  "prompts_per_step": 4,
+  "lr": 5e-05,
+  "lora_r": 32,
+  "vllm_mem": 0.55,
+  "shaped": false,
+  "save_steps": 25,
+  "no_mask_truncated": true,
+  "profile": true,
+  "resume": null,
+  "model_only_ckpt": false
+}

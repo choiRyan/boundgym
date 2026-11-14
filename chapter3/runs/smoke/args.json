@@ -1,0 +1,15 @@
+{
+  "run": "smoke",
+  "model": "Qwen/Qwen3-4B",
+  "difficulties": "2,3,4",
+  "n_per": 50,
+  "max_steps": 3,
+  "max_completion": 8192,
+  "num_generations": 8,
+  "prompts_per_step": 2,
+  "lr": 1e-05,
+  "lora_r": 32,
+  "vllm_mem": 0.45,
+  "shaped": false,
+  "save_steps": 25
+}
